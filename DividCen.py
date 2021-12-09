@@ -1,6 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import random
+
+from numpy.typing import _16Bit 
 from System_Display import *
+
 
 
 #monta grafo
@@ -12,7 +16,7 @@ coord, Ybus = coords(118)
 G  = Monta_sys(range(1,np.size(Ybus,0)+1),Ybus,med_plan)
 
 # Mostra Topologia da Rede
-Display_sys(G, coord,'black')
+#Display_sys(G, coord,'black')
 # Mostra Topologia de acordo com a 
 #Display_sys(G,'fruchterman','black')
 # Mostra Concentração das medidas
@@ -22,7 +26,7 @@ Display_sys(G, coord,'black')
 escentricidades = eccentricity(G)
 e = []
 for barra, escentricidade in sorted(escentricidades.items(), key=lambda item: item[1]):
-    print (f'{barra}: {escentricidade}')
+    #print (f'{barra}: {escentricidade}')
     e.append([barra,escentricidade])
 
 #Seleciona primeira barra com maior escentricidade
@@ -42,17 +46,49 @@ for barra in G.nodes():
     else:
         G.nodes[barra]['grupo'] = 2
 
-Display_sys(G, coord,'black')
-Display_sys(G, 'fruchterman','black')
+#Display_sys(G, coord,'black')
+#Display_sys(G, 'fruchterman','black')
 
 #3 Balanceamento
 
-peso_grupo1 = 0
-peso_grupo2 = 0
-
+#Pesos iniciais
+peso_grupo = [0,0]
 for barra in G.nodes:
-    if(G.nodes[barra]['grupo'] == 1): peso_grupo1 = peso_grupo1+G.nodes[barra]['medidas']
-    if(G.nodes[barra]['grupo'] == 2): peso_grupo2 = peso_grupo2+G.nodes[barra]['medidas']
+    if(G.nodes[barra]['grupo'] == 1): peso_grupo[0] = peso_grupo[0]+G.nodes[barra]['medidas']
+    if(G.nodes[barra]['grupo'] == 2): peso_grupo[1] = peso_grupo[1]+G.nodes[barra]['medidas']
+print(peso_grupo[0], peso_grupo[1])
+for i in range(5):
+    if( peso_grupo[0] < peso_grupo[1]):
+        grupo_menor = 0
+        grupo_maior = 1
+    else:
+        grupo_menor = 1
+        grupo_maior = 0
 
+    #Barras de fronteira.
+    barras_fronteira = []
+    for barra in G.nodes:
+        fronteira = False
+        for vizinho in G.neighbors(barra):
+            if(G.nodes[vizinho]['grupo'] == grupo_maior and G.nodes[vizinho]['grupo'] != G.nodes[barra]['grupo']): 
+                fronteira = True
+        if (fronteira) : barras_fronteira.append(barra)
+    #random.seed(10)
+    desv_peso = np.abs(peso_grupo[0] - peso_grupo[1])
+    barra_trocada = random.choice(barras_fronteira)
+    G.nodes[barra_trocada]['grupo'] = grupo_menor
+    peso_grupo[grupo_menor] = peso_grupo[grupo_menor] + G.nodes[barra_trocada]['medidas']
+    peso_grupo[grupo_maior] = peso_grupo[grupo_maior] - G.nodes[barra_trocada]['medidas']
+    novo_desv_peso = np.abs(peso_grupo[0] - peso_grupo[1])
+    print(barra_trocada, novo_desv_peso, desv_peso)
+    if(novo_desv_peso<=desv_peso): 
+        desv_peso = novo_desv_peso
+    else: 
+        G.nodes[barra_trocada]['grupo'] = grupo_maior
+        peso_grupo[grupo_menor] = peso_grupo[grupo_menor] - G.nodes[barra_trocada]['medidas']
+        peso_grupo[grupo_maior] = peso_grupo[grupo_maior] + G.nodes[barra_trocada]['medidas']
+    print(desv_peso)
+    
+    
 
 print('fim')
