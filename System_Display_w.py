@@ -254,10 +254,17 @@ def Display_sys(G,coord,color):
 
     v_labels = {x: x for x in G.nodes}
 
-    nx.draw_networkx_labels(G, coord, v_labels, font_size=11, font_color='w', font_family = "Tahoma", font_weight = "normal")
-    nx.draw_networkx_nodes(G, coord, node_size = 300, node_color=color, alpha=1, node_shape='o')
-    nx.draw_networkx_edges(G, coord, edge_color = color)
+    if(coord == 'fruchterman'):
+        pos = nx.fruchterman_reingold_layout(G)
+        nx.draw_networkx_labels(G, pos, v_labels, font_size=11, font_color='w', font_family = "Tahoma", font_weight = "normal")
+        nx.draw_networkx_nodes(G, pos, node_size = 300, node_color=color, alpha=1, node_shape='o')
+        nx.draw_networkx_edges(G, pos, edge_color = color)
+    else:
+        nx.draw_networkx_labels(G, coord, v_labels, font_size=11, font_color='w', font_family = "Tahoma", font_weight = "normal")
+        nx.draw_networkx_nodes(G, coord, node_size = 300, node_color=color, alpha=1, node_shape='o')
+        nx.draw_networkx_edges(G, coord, edge_color = color)
 
+    
     plt.show()
 
    
