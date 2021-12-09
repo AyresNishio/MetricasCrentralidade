@@ -1,6 +1,7 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import networkx as nx
+from itertools import count
 from networkx import *
 import numpy as np
 
@@ -199,12 +200,13 @@ def coords(num_bus):
 
     return coord,Ybus
 
-def Monta_sys(Ss,Ybus):
+def Monta_sys(Ss,Ybus,med_plan):
 
     G = nx.Graph()
-
+    #Retorna um dicionario que relaciona as barras com a qtde de medidas associadas a ela
+    weight_list = get_weight(med_plan,len(Ybus)) 
     for v in Ss:
-        G.add_node(v)
+        G.add_node(v,grupo = 0,medidas = weight_list[v])
 
     for i in Ss:
         for j in Ss:
@@ -220,8 +222,6 @@ def get_weight(med_plan,num_bus):
 
     for med in med_plan:
             weight_list[med[1]] += 1
-            if(med[1] == 2): 
-                print("")
 
     return weight_list
 #G=nx.Graph()
@@ -254,10 +254,23 @@ def Display_sys(G,coord,color):
 
     v_labels = {x: x for x in G.nodes}
 
-    nx.draw_networkx_labels(G, coord, v_labels, font_size=11, font_color='w', font_family = "Tahoma", font_weight = "normal")
-    nx.draw_networkx_nodes(G, coord, node_size = 300, node_color=color, alpha=1, node_shape='o')
-    nx.draw_networkx_edges(G, coord, edge_color = color)
+    #Cria grupo com elementos únicos
+    groups = set(nx.get_node_attributes(G,'grupo').values())
+    mapping = dict(zip(sorted(groups),count()))
+    #Cria Listas de Cores para cada grupo
+    colors = [mapping[G.nodes[n]['grupo']] for n in G.nodes()]
 
+    if(coord == 'fruchterman'):
+        pos = nx.fruchterman_reingold_layout(G)
+        nx.draw_networkx_labels(G, pos, v_labels, font_size=11, font_color='w', font_family = "Tahoma", font_weight = "normal")
+        nx.draw_networkx_nodes(G, pos, node_size = 300, node_color=colors, alpha=1, node_shape='o')
+        nx.draw_networkx_edges(G, pos, edge_color = color)
+    else:
+        nx.draw_networkx_labels(G, coord, v_labels, font_size=11, font_color='w', font_family = "Tahoma", font_weight = "normal")
+        nx.draw_networkx_nodes(G, coord, node_size = 300, node_color=colors, alpha=1, node_shape='o')
+        nx.draw_networkx_edges(G, coord, edge_color = color)
+
+    
     plt.show()
 
    
