@@ -15,7 +15,7 @@ Display_sys(G, coord,'black')
 
 display_w(G, med_plan,coord)
 
-#1 Vertices com maior centralidade
+#1 Vertices distantes com maior centralidade
 
 #2 Dividir rede
 
