@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from System_Display_w import *
+from MedGraph_Display import *
 
 
 #monta grafo
@@ -10,6 +11,7 @@ num_barras = 118
 #Ybarra e coordenadas
 coord, Ybus = coords(118) 
 G  = Monta_sys(range(1,np.size(Ybus,0)+1),Ybus)
+Zm = nx.MultiGraph()
 
 Display_sys(G, coord,'black')
 
