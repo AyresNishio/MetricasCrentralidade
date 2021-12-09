@@ -1,6 +1,7 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import networkx as nx
+from itertools import count
 from networkx import *
 import numpy as np
 
@@ -204,7 +205,7 @@ def Monta_sys(Ss,Ybus):
     G = nx.Graph()
 
     for v in Ss:
-        G.add_node(v)
+        G.add_node(v,group = 0)
 
     for i in Ss:
         for j in Ss:
@@ -254,14 +255,20 @@ def Display_sys(G,coord,color):
 
     v_labels = {x: x for x in G.nodes}
 
+    groups = set(nx.get_node_attributes(G,'group').values())
+    mapping = dict(zip(sorted(groups),count()))
+    colors = [mapping[G.nodes[n]['group']] for n in G.nodes()]
+
     if(coord == 'fruchterman'):
         pos = nx.fruchterman_reingold_layout(G)
         nx.draw_networkx_labels(G, pos, v_labels, font_size=11, font_color='w', font_family = "Tahoma", font_weight = "normal")
-        nx.draw_networkx_nodes(G, pos, node_size = 300, node_color=color, alpha=1, node_shape='o')
+    
+        nx.draw_networkx_nodes(G, pos, node_size = 300, node_color=colors, alpha=1, node_shape='o')
+
         nx.draw_networkx_edges(G, pos, edge_color = color)
     else:
         nx.draw_networkx_labels(G, coord, v_labels, font_size=11, font_color='w', font_family = "Tahoma", font_weight = "normal")
-        nx.draw_networkx_nodes(G, coord, node_size = 300, node_color=color, alpha=1, node_shape='o')
+        nx.draw_networkx_nodes(G, coord, node_size = 300, node_color=colors, alpha=1, node_shape='o')
         nx.draw_networkx_edges(G, coord, edge_color = color)
 
     
