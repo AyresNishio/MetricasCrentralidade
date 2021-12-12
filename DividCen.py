@@ -17,11 +17,11 @@ G  = Monta_sys(range(1,np.size(Ybus,0)+1),Ybus,med_plan)
 
 f_pos = nx.fruchterman_reingold_layout(G)
 # Mostra Topologia da Rede
-#Display_sys(G, coord,'black')
+Display_sys(G, coord,'black')
 # Mostra Topologia de acordo com a 
-#Display_sys(G,'fruchterman','black')
+Display_sys(G,f_pos,'black')
 # Mostra Concentração das medidas
-#display_w(G, med_plan,coord)
+display_w(G, med_plan,coord)
 
 #1 Vertices distantes com maior excentricidade (b1 e b2)
 excentricidades = eccentricity(G)
@@ -58,8 +58,9 @@ for barra in G.nodes:
     if(G.nodes[barra]['grupo'] == 0): peso_grupo[0] = peso_grupo[0]+G.nodes[barra]['medidas']
     if(G.nodes[barra]['grupo'] == 1): peso_grupo[1] = peso_grupo[1]+G.nodes[barra]['medidas']
 print(peso_grupo[0], peso_grupo[1])
+Display_sys(G, f_pos,'black')
 for i in range(5):
-    Display_sys(G, f_pos,'black')
+    #Display_sys(G, f_pos,'black')
     if( peso_grupo[0] < peso_grupo[1]):
         grupo_menor = 0
         grupo_maior = 1
@@ -98,4 +99,5 @@ for barra in G.nodes:
 print(peso_grupo[0], peso_grupo[1])
 
 Display_sys(G, f_pos,'black')
+Display_sys(G, coord,'black')
 print('fim')
