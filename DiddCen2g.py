@@ -81,17 +81,31 @@ for i in range(5):
     #random.seed(10)
     desv_peso = np.abs(peso_grupo[0] - peso_grupo[1])
     barra_trocada = random.choice(barras_fronteira)
-    G.nodes[barra_trocada]['grupo'] = grupo_menor
-    peso_grupo[grupo_menor] = peso_grupo[grupo_menor] + G.nodes[barra_trocada]['medidas']
-    peso_grupo[grupo_maior] = peso_grupo[grupo_maior] - G.nodes[barra_trocada]['medidas']
-    novo_desv_peso = np.abs(peso_grupo[0] - peso_grupo[1])
-    print(barra_trocada, novo_desv_peso, desv_peso)
-    if(novo_desv_peso<=desv_peso): 
-        desv_peso = novo_desv_peso
-    else: 
-        G.nodes[barra_trocada]['grupo'] = grupo_maior
-        peso_grupo[grupo_menor] = peso_grupo[grupo_menor] - G.nodes[barra_trocada]['medidas']
-        peso_grupo[grupo_maior] = peso_grupo[grupo_maior] + G.nodes[barra_trocada]['medidas']
+
+    #Cria grafo do grupo maior
+    Gmaior = G.copy()
+    for barra in G.nodes:
+        if(G.nodes[barra]['grupo'] == grupo_menor):
+            Gmaior.remove_node(barra)
+    #teste de conectividade
+    Gmaior.remove_node(barra_trocada)
+    if(nx.is_connected(Gmaior)):
+        #troca a barra de grupo
+        G.nodes[barra_trocada]['grupo'] = grupo_menor
+        peso_grupo[grupo_menor] = peso_grupo[grupo_menor] + G.nodes[barra_trocada]['medidas']
+        peso_grupo[grupo_maior] = peso_grupo[grupo_maior] - G.nodes[barra_trocada]['medidas']
+        #calculo do peso
+        novo_desv_peso = np.abs(peso_grupo[0] - peso_grupo[1])
+        print(barra_trocada, novo_desv_peso, desv_peso)
+        # teste se houve ganho com a alteração:
+        if(novo_desv_peso<=desv_peso): 
+            desv_peso = novo_desv_peso
+        else: 
+            G.nodes[barra_trocada]['grupo'] = grupo_maior
+            peso_grupo[grupo_menor] = peso_grupo[grupo_menor] - G.nodes[barra_trocada]['medidas']
+            peso_grupo[grupo_maior] = peso_grupo[grupo_maior] + G.nodes[barra_trocada]['medidas']
+    
+
     print(desv_peso)
     
 peso_grupo = [0,0]
