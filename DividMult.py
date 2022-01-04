@@ -20,7 +20,8 @@ f_pos = nx.fruchterman_reingold_layout(G)
 #1 Árvore Geradora
 T = nx.minimum_spanning_tree(G)
 t_pos = nx.fruchterman_reingold_layout(T)
-#Display_sys(T,f_pos,'black')
+Display_sys(T,coord,'black')
+Display_sys(T,t_pos,'black')
 
 #1.2 Encontrar Folhas distântes
 n_grupos = 3
@@ -66,6 +67,7 @@ for barra in G.nodes:
     grupo = G.nodes[barra]['grupo']
     peso_grupo[grupo] = peso_grupo[grupo]+G.nodes[barra]['medidas']
 print(peso_grupo)
+Display_sys(G, f_pos,'black')
 for i in range(10):
     #Display_sys(G, f_pos,'black')
 
@@ -90,7 +92,7 @@ for i in range(10):
         barra_trocada = random.choice(barras_fronteira)
         G.nodes[barra_trocada[0]]['grupo'] = menor_grupo
         peso_grupo[menor_grupo] = peso_grupo[menor_grupo] + G.nodes[barra_trocada[0]]['medidas']
-        peso_grupo[maior_grupo] = peso_grupo[maior_grupo] - G.nodes[barra_trocada[0]]['medidas']
+        peso_grupo[barra_trocada[1]] = peso_grupo[barra_trocada[1]] - G.nodes[barra_trocada[0]]['medidas']
 
         novo_desv_peso = 0 
         for ji in range(n_grupos):novo_desv_peso = novo_desv_peso + np.abs(peso_grupo[ji]-111 )
@@ -101,7 +103,7 @@ for i in range(10):
         else: 
             G.nodes[barra_trocada[0]]['grupo'] = barra_trocada[1]
             peso_grupo[menor_grupo] = peso_grupo[menor_grupo] - G.nodes[barra_trocada[0]]['medidas']
-            peso_grupo[maior_grupo] = peso_grupo[maior_grupo] + G.nodes[barra_trocada[0]]['medidas']
+            peso_grupo[barra_trocada[1]] = peso_grupo[barra_trocada[1]] + G.nodes[barra_trocada[0]]['medidas']
     print(desv_peso)
     
 peso_grupo = np.zeros(n_grupos,dtype='i')
@@ -110,6 +112,7 @@ for barra in G.nodes:
     peso_grupo[grupo] = peso_grupo[grupo]+G.nodes[barra]['medidas']
 
 print(peso_grupo)
+Display_sys(G, f_pos,'black')
 Display_sys(G, coord,'black')
 
 print('fim')
