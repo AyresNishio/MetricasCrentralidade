@@ -1,6 +1,7 @@
 from Rede.Rede import *
 from funcGrafo import *
-from funcSegment import *
+from funcDividRede import *
+from funcSegmentaRede import *
  
 if __name__ == "__main__":
 
@@ -10,7 +11,7 @@ if __name__ == "__main__":
 
     G = montar_grafo_da_rede(rede)
 
-    dividir_rede(G)
+    G = segmentar_rede(G,3)
 
     exibir_grafo_de_grupos(G, rede.coordenadas)
 
