@@ -87,6 +87,7 @@ for i in range(5):
     for barra in G.nodes:
         if(G.nodes[barra]['grupo'] == grupo_menor):
             Gmaior.remove_node(barra)
+            
     #teste de conectividade
     Gmaior.remove_node(barra_trocada)
     if(nx.is_connected(Gmaior)):
