@@ -69,9 +69,6 @@ for barra in G.nodes:
 print(peso_grupo)
 Display_sys(G, f_pos,'black')
 for i in range(10):
-    #Display_sys(G, f_pos,'black')
-
-    #identificar Grupo mais pesado
     maior_grupo = np.argmax(peso_grupo)
     #identifica grupo mais leve    
     menor_grupo = np.argmin(peso_grupo)

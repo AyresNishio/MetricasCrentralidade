@@ -3,96 +3,113 @@ import networkx as nx
 import random as rd
 
 
+
 def segmentar_rede(G,n_grupos):
     
     # Vertices de maior excentricidade são aqueles mais distântes do centro do grafo
 
-    arvore_geradora = nx.minimum_spanning_tree(G)
-    lista_de_folhas = listar_folhas(arvore_geradora)
+    
 
     #Vertices precisam estar distântes entre si para o agrupamento
-    #folhas = identificar_vertices_distantes(G, max_exc)
+    folhas = identificar_n_folhas_distantes(G,n_grupos)
 
-    #G = agrupar_barras(G,folhas)
+    G = agrupar_n_barras(G,folhas)
 
-    #G = balancear_grafo(G)
+    G = balancear_grafo(G,n_grupos)
     print('')
     return G
 
+
+
+def identificar_n_folhas_distantes(G,n_grupos):
+
+    arvore_geradora = nx.minimum_spanning_tree(G)
+    lista_de_folhas = listar_folhas(arvore_geradora)
+
+    diametro = nx.diameter(G)
+    folhas = rd.sample(lista_de_folhas, n_grupos)
+    proximas = True
+    while(proximas):
+        proximas = False
+        for f1 in folhas:
+            for f2 in folhas:
+                if(f1!=f2 and nx.shortest_path_length(G,f1,f2)<diametro/2):
+                    proximas = True
+        if(proximas):
+            rd.sample(lista_de_folhas, n_grupos)      
+    
+    return folhas
+
 def listar_folhas(T):
     lista_de_folhas = []
-    for no in T.nodes:
-        if(nx.degree(no)==1):lista_de_folhas.append(no)
+    graus = nx.degree(T)
+    for no in graus:
+        if(no[1]==1):lista_de_folhas.append(no[0])
 
     return lista_de_folhas
 
-def identificar_vertices_distantes(G,max_exc):
-    diametro = nx.diameter(G)
-    folhas = rd.sample(max_exc, 2)
-    while(nx.shortest_path_length(G,folhas[0],folhas[1])!=diametro) : folhas[0],folhas[1] = rd.sample(max_exc, 2)
-    return folhas
 
-def agrupar_barras(G, folhas):
+def agrupar_n_barras(G, folhas):
     for barra in G.nodes():
-        if(nx.shortest_path_length(G,folhas[0],barra) < nx.shortest_path_length(G,folhas[1],barra)): 
-            G.nodes[barra]['grupo'] = 0
-        else:
-            G.nodes[barra]['grupo'] = 1
+        folha_proxima = -1
+        menor_distancia = nx.diameter(G)+1
+        for folha in folhas:
+            distancia = nx.shortest_path_length(G,folha,barra)
+            if(distancia < menor_distancia):
+                folha_proxima = folha
+                menor_distancia = distancia
+
+        
+        G.nodes[barra]['grupo'] = folhas.index(folha_proxima)
     return G
 
 
-def balancear_grafo(G):
+def balancear_grafo(G,n_grupos):
 
-    for i in range(10):
+    for i in range(100):
+
+        pesos = calcular_pesos(G,n_grupos)
         
-        maior_grupo, menor_grupo = identifica_maior_e_menor_grupo(G)
+        menor_grupo = pesos.index(min(pesos))
         
-        barra_trocada = escolher_barra_para_mudar_de_grupo(G,maior_grupo)
+        #[numero da barra, grupo da barra]
+        barra_trocada,grupo_barra_trocada = escolher_barra_para_adicionar_ao_grupo(G,menor_grupo)
         
         Gnovo= G.copy()
         Gnovo.nodes[barra_trocada]['grupo'] = menor_grupo
 
-        conexo = testar_conectividade_do_grupo(Gnovo,maior_grupo)
+        conexo = testar_conectividade_do_grupo(Gnovo,grupo_barra_trocada)
         if(conexo): 
-            viavel = testar_melhoria_da_troca(G, Gnovo)
-        else: viavel = False
+            viavel = testar_melhoria_da_troca(G, Gnovo, n_grupos)
+        else: 
+            viavel = False
 
         if(viavel): G.nodes[barra_trocada]['grupo'] = menor_grupo
+
+        print(pesos)
 
     return G
 
 
 
 
-def identifica_maior_e_menor_grupo(G):
 
-    pesos = calcular_pesos(G)
-
-    if( pesos[0] < pesos[1]):
-        grupo_menor = 0
-        grupo_maior = 1
-    else:
-        grupo_menor = 1
-        grupo_maior = 0
-
-    return grupo_maior, grupo_menor
-
-def calcular_pesos(G):
-    peso_grupo = [0,0]
-    for barra in G.nodes:   
-        if(G.nodes[barra]['grupo'] == 0): peso_grupo[0] = peso_grupo[0]+G.nodes[barra]['medidas']
-        if(G.nodes[barra]['grupo'] == 1): peso_grupo[1] = peso_grupo[1]+G.nodes[barra]['medidas']
+def calcular_pesos(G,n_grupos):
+    peso_grupo = [0]*n_grupos   
+    
+    for barra in G.nodes:
+        grupo = G.nodes[barra]['grupo']
+        peso_grupo[grupo] = peso_grupo[grupo]+G.nodes[barra]['medidas']
 
     return peso_grupo
 
-def escolher_barra_para_mudar_de_grupo(G,grupo):
+def escolher_barra_para_adicionar_ao_grupo(G,grupo):
     barras_de_fronteira = []
     for barra in G.nodes:
-        fronteira = False
+        #fronteira = False
         for vizinho in G.neighbors(barra):
             if(G.nodes[barra]['grupo'] == grupo and G.nodes[vizinho]['grupo'] != G.nodes[barra]['grupo']): 
-                fronteira = True
-        if (fronteira) : barras_de_fronteira.append(barra)
+                barras_de_fronteira.append([vizinho,G.nodes[vizinho]['grupo']])
 
     barra_trocada = rd.choice(barras_de_fronteira)
     return barra_trocada
@@ -105,15 +122,23 @@ def testar_conectividade_do_grupo(G,grupo):
     
     return nx.is_connected(Gmaior)
 
-def testar_melhoria_da_troca(G_antigo, G_novo):
+def testar_melhoria_da_troca(G_antigo, G_novo,n_grupos):
     #peso representa o número de medidas em um grupo
-    peso_antigo = calcular_pesos(G_antigo) #armazenar antes da troca TODO melhorar isso
-    peso_novo = calcular_pesos(G_novo)
+    peso_antigo = calcular_pesos(G_antigo,n_grupos) #armazenar antes da troca TODO melhorar isso
+    peso_novo = calcular_pesos(G_novo,n_grupos)
 
     #objetivo da minimização
-    dif_peso_antigo = abs(peso_antigo[0] - peso_antigo[1])
-    dif_peso_novo = abs(peso_novo[0] - peso_novo[1])
+    dif_peso_antigo = calcular_dif_dos_grupos(peso_antigo)
+    dif_peso_novo = calcular_dif_dos_grupos(peso_novo)
 
     return dif_peso_novo < dif_peso_antigo
 
-        
+def calcular_dif_dos_grupos(pesos):
+    dif = 0 
+    n_medidas = sum(pesos)
+    n_grupos = len(pesos)
+    media_medidas = n_medidas/n_grupos
+    for peso in pesos:
+        dif = dif + abs(peso-media_medidas)
+    
+    return dif      
