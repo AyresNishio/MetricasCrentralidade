@@ -2,21 +2,37 @@
 import networkx as nx
 import random as rd
 
+from numpy import Inf
+
+
+def segmentar_rede_em_n_grupos_m_vezes(G,n_grupos,vezes):
+    menor_dif = Inf
+
+    for i in range(vezes):
+        G = segmentar_rede(G,n_grupos)
+        pesos=calcular_pesos(G,n_grupos)
+        dif_pesos=calcular_dif_dos_grupos(pesos)
+        print(dif_pesos)
+        if(dif_pesos<menor_dif):
+            menor_dif = dif_pesos
+            melhor_G = G
+    print(f'melhor:{menor_dif}')
+    return(melhor_G)
+
+
 
 
 def segmentar_rede(G,n_grupos):
     
     # Vertices de maior excentricidade são aqueles mais distântes do centro do grafo
-
-    
-
     #Vertices precisam estar distântes entre si para o agrupamento
     folhas = identificar_n_folhas_distantes(G,n_grupos)
 
     G = agrupar_n_barras(G,folhas)
 
     G = balancear_grafo(G,n_grupos)
-    print('')
+
+    
     return G
 
 
@@ -36,7 +52,7 @@ def identificar_n_folhas_distantes(G,n_grupos):
                 if(f1!=f2 and nx.shortest_path_length(G,f1,f2)<diametro/2):
                     proximas = True
         if(proximas):
-            rd.sample(lista_de_folhas, n_grupos)      
+            folhas = rd.sample(lista_de_folhas, n_grupos)      
     
     return folhas
 
@@ -59,7 +75,6 @@ def agrupar_n_barras(G, folhas):
                 folha_proxima = folha
                 menor_distancia = distancia
 
-        
         G.nodes[barra]['grupo'] = folhas.index(folha_proxima)
     return G
 
@@ -85,9 +100,6 @@ def balancear_grafo(G,n_grupos):
             viavel = False
 
         if(viavel): G.nodes[barra_trocada]['grupo'] = menor_grupo
-
-        print(pesos)
-
     return G
 
 

@@ -5,16 +5,20 @@ from funcSegmentaRede import *
  
 if __name__ == "__main__":
 
-    nome_caso = 'med6b9m.txt'
+    #nome_caso = 'med3b9m.txt'
+    nome_caso = 'med118b333m.txt'
 
     rede = Rede(nome_caso)
 
     G = montar_grafo_da_rede(rede)
 
-    G = segmentar_rede(G,3)
+    #exibir_grafo_de_peso_de_medidas(G, rede.coordenadas)
+
+    G = segmentar_rede_em_n_grupos_m_vezes(G,3,5)
+    
 
     exibir_grafo_de_grupos(G, rede.coordenadas)
 
-    #exibir_grafo_de_peso_de_medidas(G, rede.coordenadas)
+    
 
     print("acabou")

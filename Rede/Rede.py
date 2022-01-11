@@ -81,7 +81,7 @@ def construir_topologia(num_barras):
         30: np.array([12,  2])} 
 
     if num_barras == 118:
-        arquivo_topologia = os.path.join(nome_do_diretorio, "ieee-6-bus.txt")
+        arquivo_topologia = os.path.join(nome_do_diretorio, "ieee-118-bus.txt")
         Y_barra = np.loadtxt(arquivo_topologia, dtype='i',delimiter=",")
         coordenadas = {
         1: np.array([15, 0]),
@@ -90,7 +90,7 @@ def construir_topologia(num_barras):
         4: np.array([40, -60]),
         5: np.array([15, -100]),
         6: np.array([80, -100]),
-        7: np.array([130, -80]),
+        7: np.array([120, -80]),
         8: np.array([30, -160]),
         9: np.array([30, -220]),
         10: np.array([30, -280]),
