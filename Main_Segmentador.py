@@ -6,7 +6,8 @@ from funcSegmentaRede import *
 if __name__ == "__main__":
 
     #nome_caso = 'med3b9m.txt'
-    nome_caso = 'med118b333m.txt'
+    nome_caso = 'med14b33m.txt'
+    #nome_caso = 'med118b333m.txt'
 
     rede = Rede(nome_caso)
 
@@ -16,9 +17,6 @@ if __name__ == "__main__":
 
     G = segmentar_rede_em_n_grupos_m_vezes(G,3,5)
     
-
     exibir_grafo_de_grupos(G, rede.coordenadas)
-
-    
 
     print("acabou")
