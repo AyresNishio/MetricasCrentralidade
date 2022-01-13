@@ -8,7 +8,7 @@ from numpy import Inf
 def segmentar_rede_em_n_grupos_m_vezes(G,n_grupos,vezes):
     menor_dif = Inf
 
-    for i in range(vezes):
+    for _ in range(vezes):
         G = segmentar_rede(G,n_grupos)
         pesos=calcular_pesos(G,n_grupos)
         dif_pesos=calcular_dif_dos_grupos(pesos)

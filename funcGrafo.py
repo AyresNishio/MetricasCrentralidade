@@ -70,3 +70,26 @@ def exibir_grafo_de_peso_de_medidas(G,coordenadas):
     plt.gca().set_facecolor('paleturquoise')
     # plt.colorbar(sm)
     plt.show() # display
+
+def salva_grupos_em_txt(G,n_grupos):
+
+    grupos = cria_lista_de_grupos(G,n_grupos)
+
+    for i in range(n_grupos):
+        nome_arquivo = f'Grupo{i+1}.txt'
+        textfile = open(nome_arquivo, "w")
+    
+        for elemento in grupos[i]:  
+            textfile.write(f'{elemento}\n')
+
+        textfile.close()
+    print(grupos)
+
+def cria_lista_de_grupos(G,n_grupos):
+
+    grupos =  [[] for _ in range(n_grupos)]
+    for no in G.nodes:
+        grupo = G.nodes[no]['grupo']  
+        grupos[grupo].append(int(no))
+
+    return grupos
